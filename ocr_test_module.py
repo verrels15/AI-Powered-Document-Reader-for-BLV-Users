@@ -53,7 +53,7 @@ if ext == ".pdf":
             summary = summarizer(chunk, max_length=60, min_length=30, do_sample=False)[0]['summary_text']
             summaries.append(summary)
         except Exception as e:
-            print(f"⚠️ Skipping chunk due to error: {e}")
+            print(f"Skipping chunk due to error: {e}")
 
     final_text = " ".join(summaries)
 
