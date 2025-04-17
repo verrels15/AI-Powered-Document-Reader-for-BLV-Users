@@ -113,8 +113,8 @@ Fixed common issues:
 
 ## ✅ Current Status
 
-- OCR works for both images and PDFs
-- Output is printed cleanly
+- OCR and text to speech work for both images and PDFs
+- Output is stored in the folder "outputs" as an mp3 extension
 - Project modules are structured and reusable
 - Next step: integrate **BLIP for image captioning** and build **web app UI**
 

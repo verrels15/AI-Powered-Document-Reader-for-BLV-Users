@@ -2,7 +2,8 @@ import gradio as gr
 import os
 from datetime import datetime
 from gtts import gTTS
-from core.ocr import extract_text_from_image  # Import your existing OCR function
+from core.ocr import extract_text_from_image, extract_text_from_pdf  # Import your existing OCR function
+import ffmpeg
 
 def process_image(file):
     """Process uploaded image and generate speech using your existing OCR setup"""
@@ -21,7 +22,13 @@ def process_image(file):
     
     try:
         # Use your existing OCR function
-        final_text = extract_text_from_image(save_path)
+        # if file is pdf, use pdf extraction
+        # else use image extraction
+        if filename.lower().endswith('.pdf'):
+            final_text = extract_text_from_pdf(save_path)
+        else:
+
+            final_text = extract_text_from_image(save_path)
         
         if not final_text.strip():
             return "No text could be extracted from the image.", None, gr.update(visible=False), gr.update(visible=False)
@@ -41,22 +48,24 @@ def process_image(file):
         Extracted Text:
         {final_text[:500]}{'... [truncated]' if len(final_text) > 500 else ''}
         """
-        
-        return message, mp3_path, gr.update(value=mp3_path, visible=True), gr.update(visible=True)
+        # Provide download link
+        return message, mp3_path, gr.update(value=mp3_path, visible=True), gr.update(value=mp3_path, visible=True)
     
     except Exception as e:
         return f"Error processing file: {str(e)}", None, gr.update(visible=False), gr.update(visible=False)
 
+# Gradio UI
 with gr.Blocks() as demo:
     gr.Markdown("# Image to Speech Converter")
     gr.Markdown("Upload an image to extract text and convert it to speech")
     
     with gr.Row():
-        file_input = gr.File(label="Upload Image", file_types=[".jpg", ".jpeg", ".png"])
+        file_input = gr.File(label="Upload Image", file_types=[".jpg", ".jpeg", ".png", ".pdf"])
         audio_output = gr.Audio(label="Generated Speech", visible=False)
     
     output_text = gr.Textbox(label="Processing Status")
     download_button = gr.DownloadButton(label="Download MP3", visible=False)
+
     
     file_input.upload(
         fn=process_image,
@@ -69,6 +78,8 @@ with gr.Blocks() as demo:
         inputs=audio_output,
         outputs=download_button
     )
+
+
 
 if __name__ == "__main__":
     demo.launch()
